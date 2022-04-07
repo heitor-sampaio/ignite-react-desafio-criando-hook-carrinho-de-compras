@@ -38,10 +38,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
       const productInStockAmount = productInStock.data.amount
 
-      if(productInStockAmount >= 1) {
-        const productToAdd = await api.get(`products/${productId}`)
+      const productInCart = cart.find(product => product.id === productId)
 
-        const productInCart = cart.find(product => product.id === productId)
+      const amountNeeded = productInCart ? productInCart.amount + 1 : 1
+
+      if(productInStockAmount >= amountNeeded) { 
+        const productToAdd = await api.get(`products/${productId}`)
 
         const updatedCart = [...cart]
 
@@ -58,6 +60,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
           localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart))
         } else {
           setCart([...cart, {...productToAdd.data, amount: 1}])
+
           localStorage.setItem('@RocketShoes:cart', JSON.stringify([...cart, {...productToAdd.data, amount: 1}]))
         }
       } else {
